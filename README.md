@@ -1,14 +1,78 @@
-# Assignment 4
+# Blockchain-Analyse-Bibliothek
 
-Implement Task 1 and 2 as described in the main.rs file.
+Diese Bibliothek bietet Funktionen zur Interaktion mit der Bitcoin-Blockchain, einschließlich des Abrufens von Blockchain-Informationen, Block-Informationen und OP_RETURN-Daten.
 
-I have shown how to create a custom `bitcoincore_rpc::Client` from `jsonrpc::client::Client`.
-Have used `lazy_static` crate to create a global shared variable in rust.
-Yes it's extremely hard to convince the compiler that you are using a global variable correctly,
-so a crate has to be created to make your life easier.
+## Inhaltsverzeichnis
 
-## Adventure
+1. [Einführung](#einführung)
+2. [Installation](#installation)
+3. [Verwendung](#verwendung)
+4. [Projektstruktur](#projektstruktur)
+5. [Abhängigkeiten](#abhängigkeiten)
+6. [Tests](#tests)
+7. [Lizenz](#lizenz)
 
-Implement your own functions, take inspiration from `blockchain_analysis` directory.
-Write as much functions you can, get comfortable with Rust syntax and reading the source code
-of `bitcoin` and `bitcoincore_rpc` crates.
+## Einführung
+
+Diese Rust-Bibliothek ermöglicht die Kommunikation mit einem Bitcoin-Node über das Bitcoin Core RPC-Interface. Sie können Informationen über die Blockchain und spezifische Blöcke abrufen sowie Nachrichten und OP_RETURN-Daten aus Transaktionen extrahieren.
+
+## Installation
+
+1. **Klonen Sie das Repository:**
+    ```sh
+    git clone https://github.com/xxxx
+    cd xxx
+    ```
+
+2. **Abhängigkeiten installieren:**
+    Stellen Sie sicher, dass Sie Rust und Cargo installiert haben. Installieren Sie die notwendigen Abhängigkeiten durch Ausführen von:
+    ```sh
+    cargo build
+    ```
+
+3. **Umgebungsvariablen konfigurieren:**
+    Erstellen Sie eine `.env`-Datei im Projektverzeichnis und fügen Sie die folgenden Variablen hinzu:
+    ```sh
+    BITCOIN_RPC_URL=http://localhost:8332
+    BITCOIN_RPC_USER=user
+    BITCOIN_RPC_PASSWORD=password
+    ```
+
+## Verwendung
+
+1. **Starten Sie das Hauptprogramm:**
+    ```sh
+    cargo run
+    ```
+
+2. **Menüoptionen:**
+    Das Programm bietet ein einfaches Menü zur Auswahl der folgenden Optionen:
+    - `1`: Blockchain-Informationen abrufen
+    - `2`: Block-Informationen abrufen
+    - `3`: Nachrichten im Block abrufen
+    - `4`: OP_RETURN-Daten in einer Transaktion abrufen
+    - `0`: Beenden
+
+## Projektstruktur
+
+```plaintext
+.
+├── src
+│   ├── blockchain
+│   │   ├── blockchain_info.rs
+│   │   ├── block_info.rs
+│   ├── rpc
+│   │   ├── rpc_client.rs
+│   ├── utils
+│   │   ├── decode_hex.rs
+│   │   ├── input_helpers.rs
+│   ├── errors.rs
+│   ├── lib.rs
+│   ├── main.rs
+├── tests
+│   ├── integration_test.rs
+│   ├── unit_test.rs
+│   ├── error_tests.rs
+├── .env
+├── Cargo.toml
+├── README.md

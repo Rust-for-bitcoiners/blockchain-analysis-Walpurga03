@@ -1,60 +1,55 @@
-use std::{env, time};
-
-use bitcoincore_rpc::{json, jsonrpc::{self}, Auth, Client, RpcApi};
-use chrono::Duration;
-#[macro_use]
-extern crate lazy_static;
-
-lazy_static! {
-    static ref RPC_CLIENT: Client = {
-        dotenv::dotenv().ok();
-        let rpc_url: String = env::var("BITCOIN_RPC_URL").expect("BITCOIN_RPC_URL must be set");
-        let rpc_user: String = env::var("BITCOIN_RPC_USER").expect("BITCOIN_RPC_USER must be set");
-        let rpc_password: String =
-            env::var("BITCOIN_RPC_PASSWORD").expect("BITCOIN_RPC_PASSWORD must be set");
-        Client::new(&rpc_url, Auth::UserPass(rpc_user, rpc_password)).unwrap()
-    };
-}
-
-// static client: Client = Client::new("url", Auth::UserPass("user".to_owned(), "password".to_owned())).unwrap();
-
-// TODO: Task 1
-fn time_to_mine(block_height: u64) -> Duration {
-    // * is a deref operator which invokes the Deref trait of the type RPC_CLIENT which was created
-    // when the lazy macro is expanded
-    // if a value has a static lifetime then it means that value lives as long as the program lives
-    let rpc_client: &Client = &*RPC_CLIENT;
-    rpc_client.get_block_hash(234);
-    todo!()
-}
-
-// TODO: Task 2
-fn number_of_transactions(block_height: u64) -> u16 {
-    let some_value = Box::new(4 as u32);
-    todo!()
-}
+use rfb_2_2024_4::blockchain::blockchain_info::get_blockchain_info;
+use rfb_2_2024_4::blockchain::block_info::{get_block_info, get_block_messages};
+use rfb_2_2024_4::op_return::get_op_return_data;
+use rfb_2_2024_4::utils::input_helpers::{read_input, read_block_height, read_txid};
+use rfb_2_2024_4::rpc::rpc_client::CLIENT;
+use std::io::{self, Write};
 
 fn main() {
-    // you can use rpc_client here as if it was a global variable
-    // println!("{:?}", res);
-    const TIMEOUT_UTXO_SET_SCANS: time::Duration = time::Duration::from_secs(60 * 8); // 8 minutes
-    dotenv::dotenv().ok();
-        let rpc_url: String = env::var("BITCOIN_RPC_URL").expect("BITCOIN_RPC_URL must be set");
-        let rpc_user: String = env::var("BITCOIN_RPC_USER").expect("BITCOIN_RPC_USER must be set");
-        let rpc_password: String =
-            env::var("BITCOIN_RPC_PASSWORD").expect("BITCOIN_RPC_PASSWORD must be set");
+    dotenv::dotenv().ok();  // Lädt Umgebungsvariablen aus einer .env Datei
 
-    let custom_timeout_transport = jsonrpc::simple_http::Builder::new()
-        .url(&rpc_url)
-        .expect("invalid rpc url")
-        .auth(rpc_user, Some(rpc_password))
-        .timeout(TIMEOUT_UTXO_SET_SCANS)
-        .build();
-    let custom_timeout_rpc_client =
-        jsonrpc::client::Client::with_transport(custom_timeout_transport);
+    loop {
+        println!("Menu:");
+        println!("1: Blockchain Info");
+        println!("2: Block Info");
+        println!("3: Block Messages");
+        println!("4: OP_RETURN Data in Transaction");
+        println!("0: Quit");
 
-    let rpc_client = Client::from_jsonrpc(custom_timeout_rpc_client);
-    let res: json::GetTxOutSetInfoResult =
-        rpc_client.get_tx_out_set_info(None, None, None).unwrap();
-    println!("{:?}", res);
+        print!("Enter your choice: ");
+        io::stdout().flush().unwrap();  // Stellt sicher, dass die Ausgabe sofort angezeigt wird
+
+        let choice = read_input().trim().to_string();  // Liest die Benutzereingabe
+
+        match choice.as_str() {
+            "1" => {
+                if let Err(e) = get_blockchain_info() {  // Ruft Blockchain-Informationen ab
+                    println!("Error: {}", e);
+                }
+            }
+            "2" => {
+                if let Some(height) = read_block_height() {  // Liest die Blockhöhe vom Benutzer
+                    if let Err(e) = get_block_info(&CLIENT.lock().unwrap(), height) {  // Ruft Block-Informationen ab
+                        println!("Error: {}", e);
+                    }
+                }
+            }
+            "3" => {
+                if let Some(height) = read_block_height() {  // Liest die Blockhöhe vom Benutzer
+                    if let Err(e) = get_block_messages(&CLIENT.lock().unwrap(), height) {  // Ruft Nachrichten im Block ab
+                        println!("Error: {}", e);
+                    }
+                }
+            }
+            "4" => {
+                if let Some(txid) = read_txid() {  // Liest die Transaktions-ID vom Benutzer
+                    if let Err(e) = get_op_return_data(&txid) {  // Ruft OP_RETURN-Daten ab
+                        println!("Error: {}", e);
+                    }
+                }
+            }
+            "0" => break,  // Beendet die Schleife und damit das Programm
+            _ => println!("Invalid choice!"),  // Ungültige Auswahl
+        }
+    }
 }
