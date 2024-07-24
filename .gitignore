@@ -1,2 +1,7 @@
-target
-Cargo.lock
+# Ignoriere die .env Datei
+.env
+
+# Rust spezifische ignores
+/target/
+/Cargo.lock
+/docs/
